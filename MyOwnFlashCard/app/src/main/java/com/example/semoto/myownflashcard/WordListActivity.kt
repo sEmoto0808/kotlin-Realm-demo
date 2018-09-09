@@ -2,6 +2,7 @@ package com.example.semoto.myownflashcard
 
 import android.content.Intent
 import android.os.Bundle
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.AdapterView
@@ -45,6 +46,25 @@ class WordListActivity : AppCompatActivity(), AdapterView.OnItemClickListener, A
         buttonBack.setOnClickListener {
             finish()
         }
+
+        // 「暗記済みは下に」ボタンを押した場合
+        // 暗記済みフラグが立っている単語を下にソート
+        buttonSort.setOnClickListener {
+
+            wordlist.clear()
+
+            results = realm.where(WordDB::class.java).findAll().sort(getString(R.string.db_field_memory_flag))
+
+            results.forEach {
+                if (it.boolMemoryFlag) {
+                    wordlist.add(it.strAnswer + ":" + it.strQuestion + "【暗記済み】")
+                } else {
+                    wordlist.add(it.strAnswer + ":" + it.strQuestion)
+                }
+            }
+
+            listView.adapter = adapter
+        }
         
         // リストのクリックリスナー
         listView.onItemClickListener = this
@@ -58,16 +78,25 @@ class WordListActivity : AppCompatActivity(), AdapterView.OnItemClickListener, A
         realm = Realm.getDefaultInstance()
 
         // 1.DBに登録している単語一覧を表示する（ListVe¥iew）
-        results = realm.where(WordDB::class.java).findAll().sort(getString(R.string.db_field_question))
+        results = realm.where(WordDB::class.java).findAll().sort(getString(R.string.db_field_answer))
 
         //for文を使ってリストの表示形式を修正する
+        // 暗記済みのものは「暗記済み」と表示
         wordlist = ArrayList<String>()
 //        val length = results.size
 //        for (i in 0 until length) {
-//            wordlist.add(results[i]?.strAnswer + ":" + results[i]?.strQuestion)
+//            if (results[i]?.boolMemoryFlag!!) {
+//                wordlist.add(results[i]?.strAnswer + ":" + results[i]?.strQuestion + "【暗記済み】")
+//            } else {
+//                wordlist.add(results[i]?.strAnswer + ":" + results[i]?.strQuestion)
+//            }
 //        }
         results.forEach {
-            wordlist.add(it.strAnswer + ":" + it.strQuestion)
+            if (it.boolMemoryFlag) {
+                wordlist.add(it.strAnswer + ":" + it.strQuestion + "【暗記済み】")
+            } else {
+                wordlist.add(it.strAnswer + ":" + it.strQuestion)
+            }
         }
 
         adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, wordlist)
@@ -107,16 +136,27 @@ class WordListActivity : AppCompatActivity(), AdapterView.OnItemClickListener, A
         // 1.長押しした項目をDBから取得
         val selectedItem = results[position]
 
-        // 2.1.で取得した内容をDBから削除
-        realm.beginTransaction()
-        selectedItem?.deleteFromRealm()
-        realm.commitTransaction()
+        // リスト内の単語を長押しした場合確認ダイアログ
+        val dialog = AlertDialog.Builder(this@WordListActivity).apply {
+            setTitle(selectedItem?.strAnswer + "の削除")
+            setMessage("削除してもいいですか？")
 
-        // 3.1.で取得した内容をリストから削除
-        wordlist.removeAt(position)
+            setPositiveButton("はい") {dialogInterface, i ->
+                // 2.1.で取得した内容をDBから削除
+                realm.beginTransaction()
+                selectedItem?.deleteFromRealm()
+                realm.commitTransaction()
 
-        // 4.DBから単語帳データを再取得して表示
-        listView.adapter = adapter
+                // 3.1.で取得した内容をリストから削除
+                wordlist.removeAt(position)
+
+                // 4.DBから単語帳データを再取得して表示
+                listView.adapter = adapter
+            }
+
+            setNegativeButton("いいえ") {dialogInterface, i ->  }
+            show()
+        }
 
         return true
     }

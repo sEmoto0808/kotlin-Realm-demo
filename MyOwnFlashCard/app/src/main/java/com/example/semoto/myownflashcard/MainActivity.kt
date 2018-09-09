@@ -50,5 +50,21 @@ class MainActivity : AppCompatActivity() {
             intBacgroundColor = R.color.color06
             constraintLayoutMain.setBackgroundResource(intBacgroundColor)
         }
+
+        // 「確認テスト」ボタンを押下した時
+        buttonTest.setOnClickListener {
+            // TODO 1.テスト画面（TestActivity）へ
+            //      →　選択したテスト条件をIntentで渡す
+            val intent = Intent(this@MainActivity, TestActivity::class.java)
+
+            when (radioGroup.checkedRadioButtonId) {
+                // 暗記済みの単語を除外する場合
+                R.id.radioButton -> intent.putExtra(getString(R.string.intent_key_memory_flag), true)
+                // 暗記済みの単語を除外しない場合
+                R.id.radioButton2 -> intent.putExtra(getString(R.string.intent_key_memory_flag), false)
+            }
+
+            startActivity(intent)
+        }
     }
 }

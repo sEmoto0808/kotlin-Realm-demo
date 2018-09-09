@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">My単語帳</string>
-    
+
     <!--main_activity.xmlで使う文字列-->
     <string name="change_color">画面の背景色を変えたい場合は下のボタンを押してください</string>
     <string name="word_list">登録されている単語一覧</string>
@@ -10,14 +10,20 @@
     <!--ステータス-->
     <string name="status_add">新しい単語の追加</string>
     <string name="status_change">登録した単語の修正</string>
-    
+
     <!--intentで渡すキー-->
     <string name="intent_key_status">intent_key_status</string>
     <string name="intent_key_question">intent_key_question</string>
     <string name="intent_key_answer">intent_key_answer</string>
     <string name="intent_key_position">intent_key_position</string>
-    
+    <string name="intent_key_memory_flag">intent_key_memory_flag</string>
+
     <!--DBのフィールド-->
     <string name="db_field_question">strQuestion</string>
     <string name="db_field_answer">strAnswer</string>
+    <string name="db_field_memory_flag">boolMemoryFlag</string>
+    
+    <!--ラジオボタンに表示する選択肢-->
+    <string name="radio_button_01">暗記済みの単語を除外する</string>
+    <string name="radio_button_02">暗記済みの単語を含む</string>
 </resources>
